@@ -11,7 +11,6 @@ namespace BlogProjectWeb.Controllers {
             this.blogDbContext = blogDbContext;
         }
 
-
         [HttpGet]
         public IActionResult Add() {
             return View();
@@ -28,8 +27,17 @@ namespace BlogProjectWeb.Controllers {
 
             blogDbContext.Tags.Add(tag);
             blogDbContext.SaveChanges();
-            
-            return View("Add");
+
+            return RedirectToAction("List");
+        }
+
+        [HttpGet]
+        [ActionName("List")]
+        public IActionResult List() {
+            //Use DbContext to read the Tags
+            var tags = blogDbContext.Tags.ToList();
+
+            return View(tags);
         }
     }
 }
