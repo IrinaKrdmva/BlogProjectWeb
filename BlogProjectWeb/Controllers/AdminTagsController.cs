@@ -1,15 +1,16 @@
 ﻿using BlogProjectWeb.Data;
 using BlogProjectWeb.Models.Domain;
 using BlogProjectWeb.Models.ViewModels;
+using BlogProjectWeb.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogProjectWeb.Controllers {
     public class AdminTagsController : Controller {
-        private readonly BlogDbContext blogDbContext;
+        private readonly ITagRepository tagRepository;
 
-        public AdminTagsController(BlogDbContext blogDbContext) {
-            this.blogDbContext = blogDbContext;
+        public AdminTagsController(ITagRepository tagRepository) {
+            this.tagRepository = tagRepository;
         }
 
         [HttpGet]
@@ -26,8 +27,8 @@ namespace BlogProjectWeb.Controllers {
                 DisplayName = addTagRequest.DisplayName
             };
 
-            await blogDbContext.Tags.AddAsync(tag);
-            await blogDbContext.SaveChangesAsync();
+            //Calls the methods in the repository (add and save to the db)
+            await tagRepository.AddAsync(tag);
 
             return RedirectToAction("List");
         }
@@ -35,19 +36,16 @@ namespace BlogProjectWeb.Controllers {
         [HttpGet]
         [ActionName("List")]
         public async Task<IActionResult> List() {
-            //Use DbContext to read the Tags
-            var tags = await blogDbContext.Tags.ToListAsync();
+            //Use the repository to access the db and read the Tags
+            var tags = await tagRepository.GetAllAsync();
 
             return View(tags);
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id) {
-            //1st method
-            //var tag = blogDbContext.Tags.Find(id);
-
-            //2nd method
-            var tag = await blogDbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+            //Call the tag repository for one tag search by id
+            var tag = await tagRepository.GetAsync(id);
 
             if (tag != null) {
                 var editTagRequest = new EditTagRequest {
@@ -70,35 +68,28 @@ namespace BlogProjectWeb.Controllers {
                 Name = editTagRequest.Name,
                 DisplayName = editTagRequest.DisplayName
             };
-            var existingTag = await blogDbContext.Tags.FindAsync(tag.Id);
 
-            if (existingTag != null) {
-                existingTag.Name = tag.Name;
-                existingTag.DisplayName = tag.DisplayName;
+            //Calling the repository for the Update method
+            var updatedTag = await tagRepository.UpdateAsync(tag);
 
-                //Save changes
-                await blogDbContext.SaveChangesAsync();
-
-                //Show success notification
-                return RedirectToAction("Edit", new { id = editTagRequest.Id });
+            if (updatedTag != null) {
+                //Show success notificaion
+            } else {
+                //Show error notificaion
             }
 
-            //Show error notificaion
             return RedirectToAction("Edit", new { id = editTagRequest.Id });
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(EditTagRequest editTagRequest) {
         
-            var tag = await blogDbContext.Tags.FindAsync(editTagRequest.Id);
-
-            if (tag != null) {
-                blogDbContext.Tags.Remove(tag);
-                await blogDbContext.SaveChangesAsync();
-
-                //Show success notification
+            //Call the tag repository to access the Delete method
+            var deletedTag = await tagRepository.DeleteAsync(editTagRequest.Id);
+            if (deletedTag != null) {
+                //Show success notificaion
                 return RedirectToAction("List");
-            }
+            } 
 
             //Show error notificaion
             return RedirectToAction("Edit", new { id = editTagRequest.Id });

@@ -1,4 +1,5 @@
 using BlogProjectWeb.Data;
+using BlogProjectWeb.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,10 @@ builder.Services.AddControllersWithViews();
 //Inject DbContext into the services of our application
 builder.Services.AddDbContext<BlogDbContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDbConnectionString")));
+
+//Injecting the interface of the repositories
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+
 
 var app = builder.Build();
 
