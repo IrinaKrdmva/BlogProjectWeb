@@ -16,8 +16,8 @@ namespace BlogProjectWeb.Models.ViewModels {
         //Display tags
         public IEnumerable<SelectListItem> Tags { get; set; }
 
-        //Capture or collect the tag
-        public string SelectedTag { get; set; }
+        //Capture or collect multiple tags in an array
+        public string[] SelectedTags { get; set; } = Array.Empty<string>();
 
     }
 }

@@ -13,7 +13,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDbConnection
 
 //Injecting the interface of the repositories
 builder.Services.AddScoped<ITagRepository, TagRepository>();
-
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 
 var app = builder.Build();
 
