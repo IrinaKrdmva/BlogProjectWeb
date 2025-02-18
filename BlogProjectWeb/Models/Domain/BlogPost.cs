@@ -11,7 +11,7 @@
         public string Author { get; set; }
         public bool Visible { get; set; }
 
-        //Many-to-many relationship
+        //Many-to-many relationship / Navigation property
         public ICollection<Tag> Tags { get; set; }
     }
 }
