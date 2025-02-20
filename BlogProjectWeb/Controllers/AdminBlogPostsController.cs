@@ -145,5 +145,19 @@ namespace BlogProjectWeb.Controllers {
             return RedirectToAction("Edit");
             //Rederect to GET
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(EditBlogPostRequest editBlogPostRequest) {
+            //Call on the repository to delete this blog post and tags
+            var deletedBlogPost = await blogPostRepository.DeleteAsync(editBlogPostRequest.Id);
+            if (deletedBlogPost != null) {
+                //Show success notificaion
+                return RedirectToAction("List");
+            }
+
+            //Show error notificaion
+            return RedirectToAction("Edit", new { id = editBlogPostRequest.Id });
+        }
+        
     }
 }
